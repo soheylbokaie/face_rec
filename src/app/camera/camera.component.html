@@ -1,0 +1,22 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <div
+        class="circle-container timer-container"
+        [class]="{
+          'blinking-right-border': isBlinkingr,
+          'blinking-left-border': isBlinkingl,
+          'blinking-border': isBlinkingl && isBlinkingr
+        }"
+      >
+        <video id="webcam-video" class="img-fluid" autoplay playsinline></video>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- <p>{{ test }}</p> -->
+<!-- <button (click)="testsss()">test</button> -->
