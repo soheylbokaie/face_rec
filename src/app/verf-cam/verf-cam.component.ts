@@ -139,7 +139,7 @@ export class VerfCamComponent implements OnInit, AfterViewInit {
               .subscribe((result: any) => {
                 console.log(result);
                 window.location.href =
-                  'http://172.20.10.5:3000/elections/' +
+                  'http://3.122.250.98/elections/' +
                   this.user_details['election_id'] +
                   '?face_reco_token=' +
                   result['hash'];
