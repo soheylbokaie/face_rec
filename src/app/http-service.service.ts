@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class HttpServiceService {
-  private apiUrl = 'https://172.20.10.4:5000/'; // replace with your API endpoint
+  private apiUrl = 'https://3.122.250.98:5000/'; // replace with your API endpoint
 
   constructor(private http: HttpClient) {}
   generate_token(data: any): Observable<any> {

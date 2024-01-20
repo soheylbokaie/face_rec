@@ -15,7 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpServiceService } from '../http-service.service';
 import { Router } from '@angular/router';
 
-const socket = io.connect('https://172.20.10.4:5000');
+const socket = io.connect('https://3.122.250.98:5000');
 @Component({
   selector: 'app-camera',
   standalone: true,
