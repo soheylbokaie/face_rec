@@ -30,7 +30,6 @@ export class CameraComponent implements OnInit, AfterViewInit {
     private el: ElementRef,
     private renderer: Renderer2,
     private route: ActivatedRoute,
-    private router: Router,
     private myHttpService: HttpServiceService
   ) {}
   intervalTime = 250;

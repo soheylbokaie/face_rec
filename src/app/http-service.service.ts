@@ -15,4 +15,7 @@ export class HttpServiceService {
   send_Image(data: any): Observable<any> {
     return this.http.post<any>(this.apiUrl + 'save_pic', data);
   }
+  verfPicture(data: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl + 'verf', data);
+  }
 }
