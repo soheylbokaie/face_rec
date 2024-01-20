@@ -15,7 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpServiceService } from '../http-service.service';
 import { Router } from '@angular/router';
 
-const socket = io.connect('https://3.122.250.98:5000');
+const socket = io.connect('https://localhost:5000');
 @Component({
   selector: 'app-camera',
   standalone: true,
@@ -192,7 +192,7 @@ export class CameraComponent implements OnInit, AfterViewInit {
       .subscribe((result: any) => {
         console.log(result);
         window.location.href =
-          'http://172.20.10.5:3000/auth/profile?face_reco_token=' +
+          'http://localhost:3000/auth/profile?face_reco_token=' +
           result['token'];
       });
 
@@ -209,6 +209,8 @@ export class CameraComponent implements OnInit, AfterViewInit {
   }
   chooseNumber() {
     // Replace this with the logic to get the chosen number
+    this.randomIndex = Math.floor(Math.random() * 3);
+
     while (this.verfied[this.randomIndex] == 1) {
       if (
         this.verfied[0] == 1 &&

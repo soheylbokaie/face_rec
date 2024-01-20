@@ -15,7 +15,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpServiceService } from '../http-service.service';
 import { Router } from '@angular/router';
 
-const socket = io.connect('https://3.122.250.98:5000');
+const socket = io.connect('https://localhost:5000');
 
 @Component({
   selector: 'app-verf-cam',
@@ -139,7 +139,7 @@ export class VerfCamComponent implements OnInit, AfterViewInit {
               .subscribe((result: any) => {
                 console.log(result);
                 window.location.href =
-                  'http://3.122.250.98/elections/' +
+                  'http://localhost:3000/elections/' +
                   this.user_details['election_id'] +
                   '?face_reco_token=' +
                   result['hash'];
@@ -196,6 +196,7 @@ export class VerfCamComponent implements OnInit, AfterViewInit {
   }
 
   chooseNumber() {
+    this.randomIndex = Math.floor(Math.random() * 3);
     // Replace this with the logic to get the chosen number
     while (this.verfied[this.randomIndex] == 1) {
       if (
