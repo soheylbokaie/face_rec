@@ -4,19 +4,24 @@
       <div
         class="circle-container timer-container"
         [class]="{
-          'blinking-right-border': isBlinkingr,
-          'blinking-left-border': isBlinkingl,
-          'blinking-border': isBlinkingl && isBlinkingr
+          'blinking-right-border': direction_comand[randomIndex] == 'Left',
+          'blinking-left-border': direction_comand[randomIndex] == 'Right',
+          'blinking-border': direction_comand[randomIndex] == 'Front'
         }"
       >
         <video id="webcam-video" class="img-fluid" autoplay playsinline></video>
+        <div
+          class="overlay-text"
+          [class]="{
+            hidden: !blur
+          }"
+        >
+          Please Look at {{ this.direction_comand[this.randomIndex] }}
+        </div>
       </div>
     </div>
   </div>
 </div>
-
-
-
 
 <!-- <p>{{ test }}</p> -->
 <!-- <button (click)="testsss()">test</button> -->

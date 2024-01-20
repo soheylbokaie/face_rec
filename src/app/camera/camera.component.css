@@ -7,8 +7,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border-left: 1px solid green; /* Adjust the width and color as needed */
-  border-right: 1px solid green; /* Adjust the width and color as needed */
+  border-left: 1px solid green;
+  border-right: 1px solid green;
+  position: fixed;
+  display: flex;
 }
 
 .circle-container video {
@@ -35,26 +37,55 @@
 }
 
 @keyframes lblink {
-  0%, 50%, 100% {
-    border-color: #000 ;
+  0%,
+  50%,
+  100% {
+    border-color: #000;
   }
-  25%, 75% {
+  25%,
+  75% {
     border-color: #000 #000 #000 #0f0;
   }
 }
 @keyframes rblink {
-  0%, 50%, 100% {
-    border-color: #000 ;
+  0%,
+  50%,
+  100% {
+    border-color: #000;
   }
-  25%, 75% {
+  25%,
+  75% {
     border-color: #000 #0f0 #000 #000;
   }
 }
 @keyframes blink {
-  0%, 50%, 100% {
-    border-color: #000 ;
+  0%,
+  50%,
+  100% {
+    border-color: #000;
   }
-  25%, 75% {
+  25%,
+  75% {
     border-color: #0f0;
   }
+}
+
+.blur-effect {
+  filter: blur(5px);
+}
+/* your-component.component.css */
+
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white; /* Adjust the text color */
+  font-size: 24px; /* Adjust the font size */
+  font-weight: bold; /* Adjust the font weight */
+  background-color: #000;
+  opacity: 0.5;
+}
+.hidden {
+  display: none;
 }

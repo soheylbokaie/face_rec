@@ -9,8 +9,13 @@ import { WebcamService } from '../webcam.service';
 import { SocketService } from '../socket.service';
 import * as io from 'socket.io-client';
 import { interval, Subscription } from 'rxjs';
+import * as jwt_decode from 'jwt-decode';
+import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
+import { HttpServiceService } from '../http-service.service';
+import { Router } from '@angular/router';
 
-const socket = io.connect('https://127.0.0.1:5000');
+const socket = io.connect('https://172.20.10.4:5000');
 @Component({
   selector: 'app-camera',
   standalone: true,
@@ -23,9 +28,12 @@ export class CameraComponent implements OnInit, AfterViewInit {
     private socketService: SocketService,
     private webcamService: WebcamService,
     private el: ElementRef,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private route: ActivatedRoute,
+    private router: Router,
+    private myHttpService: HttpServiceService
   ) {}
-  intervalTime = 200;
+  intervalTime = 250;
   message: string = '';
   test = 5;
   receivedMessage: string = '';
@@ -34,12 +42,33 @@ export class CameraComponent implements OnInit, AfterViewInit {
   video = document.getElementById('webcam-video') as HTMLVideoElement;
   isBlinkingl = false;
   isBlinkingr = false;
-  counts: Array<number> = [0, 0, 0];
+  directions: Array<number> = [0, 0, 0];
+  verfied: Array<number> = [0, 0, 0];
+  direction_comand: Array<string> = ['Left', 'Front', 'Right'];
+  decodedToken: any = '';
+  start = true;
+  user_details: any;
+  left = false;
+  front = false;
+  right = false;
+  blur = false;
+  sent = false;
+  randomIndex = 0;
+  image: any;
   ngOnInit(): void {
+    try {
+      const queryParams = this.route.snapshot.queryParams;
+      this.decodedToken = jwt_decode.jwtDecode(queryParams['token']);
+      this.user_details = this.decodedToken['user_to_enc'];
+
+      this.chooseNumber();
+    } catch (error) {}
+
     this.initializeWebcam();
   }
   ngAfterViewInit(): void {
     this.video = document.getElementById('webcam-video') as HTMLVideoElement;
+
     const source = interval(this.intervalTime);
 
     source.subscribe(() => {
@@ -54,62 +83,59 @@ export class CameraComponent implements OnInit, AfterViewInit {
       .then((stream: MediaStream) => {
         this.video.srcObject = stream;
         socket.connect();
-        this.canvas.width = 400; 
-        this.canvas.height = 300; 
+        this.canvas.width = 400;
+        this.canvas.height = 300;
         socket.on('data', (data) => {
-          if (data['direction'] == 'left') {
-            this.counts[0] += 1;
-            this.counts[1] = 0;
-            this.counts[2] = 0;
-          } else if (data['direction'] == 'right') {
-            this.counts[2] += 1;
-            this.counts[0] = 0;
-            this.counts[1] = 0;
-          } else if (data['direction'] == 'front') {
-            this.counts[1] += 1;
-            this.counts[2] = 0;
-            this.counts[0] = 0;
-          }
-
-          if (this.counts[1] % 5 == 0 && this.counts[1] != 0) {
-            if (this.counts[1] == 5) {
-              this.test = 5;
+          if (this.start == true) {
+            if (data['direction'] == 'Left' && this.randomIndex == 0) {
+              this.directions[0] += 1;
+              this.directions[1] = 0;
+              this.directions[2] = 0;
+            } else if (data['direction'] == 'Right' && this.randomIndex == 2) {
+              this.directions[2] += 1;
+              this.directions[0] = 0;
+              this.directions[1] = 0;
+            } else if (data['direction'] == 'Front' && this.randomIndex == 1) {
+              this.directions[1] += 1;
+              this.directions[2] = 0;
+              this.directions[0] = 0;
             }
-            if (this.test >= 1) {
-              this.test -= 1;
-              this.isBlinkingr = true;
-              this.isBlinkingl = true;
+            if (this.direction_comand[this.randomIndex] != data['direction']) {
+              this.video.classList.add('blur-effect');
+              this.blur = true;
             } else {
-              this.isBlinkingl = false;
-              this.isBlinkingr = false;
-            }
-          } else if (this.counts[0] % 5 == 0 && this.counts[0] != 0) {
-            if (this.counts[0] == 5) {
-              this.test = 5;
-            }
-            if (this.test >= 1) {
-              this.test -= 1;
-              this.isBlinkingl = false;
-              this.isBlinkingr = true;
-            } else {
-              this.isBlinkingl = false;
-              this.isBlinkingr = false;
-            }
-          } else if (this.counts[2] % 5 == 0 && this.counts[2] != 0) {
-            if (this.counts[2] == 5) {
-              this.test = 5;
-            }
-            if (this.test >= 1) {
-              this.isBlinkingl = true;
-              this.isBlinkingr = false;
-              this.test -= 1;
-            } else {
-              this.isBlinkingl = false;
-              this.isBlinkingr = false;
+              this.video.classList.remove('blur-effect');
+              this.blur = false;
+              if (this.directions[this.randomIndex] % 13 == 0) {
+                this.verfied[this.randomIndex] = 1;
+                this.chooseNumber();
+              }
             }
           }
-
-          console.log(this.counts);
+          if (data.hasOwnProperty('image')) {
+            this.image = data['image'];
+          }
+          if (
+            this.verfied[0] == 1 &&
+            this.verfied[1] == 1 &&
+            this.verfied[2] == 1 &&
+            this.sent == false
+          ) {
+            this.sent = true;
+            const data_to_send = {
+              image: this.image,
+              user_id: this.user_details['user_id'],
+            };
+            console.log(data_to_send);
+            this.myHttpService
+              .send_Image(data_to_send)
+              .subscribe((result: any) => {
+                if (result['status'] == 'True') {
+                  console.log(result);
+                }
+              });
+            this.fetchData();
+          }
         });
       })
       .catch((error: any) => {
@@ -145,7 +171,11 @@ export class CameraComponent implements OnInit, AfterViewInit {
       this.canvas.height
     );
     const frameDataUrl = this.canvas.toDataURL('image/jpeg');
-    socket.emit('get_image', { img: frameDataUrl, name: 'nkljnk' });
+    socket.emit('get_image', {
+      img: frameDataUrl,
+      name: this.user_details['user_id'],
+      state: this.directions[1],
+    });
   }
 
   testsss() {
@@ -153,6 +183,42 @@ export class CameraComponent implements OnInit, AfterViewInit {
       setInterval(() => {
         this.isBlinkingr = !this.isBlinkingr;
       }, 1000);
+    }
+  }
+  fetchData() {
+    console.log(this.decodedToken);
+
+    this.myHttpService
+      .generate_token(this.decodedToken)
+      .subscribe((result: any) => {
+        console.log(result);
+        window.location.href =
+          'http://172.20.10.5:3000/auth/profile?face_reco_token=' +
+          result['token'];
+      });
+
+    // .generate_token(this.decodedToken)
+    // .subscribe((result: any) => {
+    //   console.log(result);
+    //   window.location.href =
+    //     'http://172.20.10.5:3000/auth/profile?face_reco_token=' +
+    //     result['token'];
+    // },(err)=>{
+    //   console.log(err);
+
+    // });
+  }
+  chooseNumber() {
+    // Replace this with the logic to get the chosen number
+    while (this.verfied[this.randomIndex] == 1) {
+      if (
+        this.verfied[0] == 1 &&
+        this.verfied[1] == 1 &&
+        this.verfied[2] == 1
+      ) {
+        break;
+      }
+      this.randomIndex = Math.floor(Math.random() * 3);
     }
   }
 }
